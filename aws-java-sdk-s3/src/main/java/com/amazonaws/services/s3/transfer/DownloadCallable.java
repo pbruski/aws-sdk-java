@@ -126,6 +126,7 @@ final class DownloadCallable implements Callable<File> {
 
             download.setState(TransferState.InProgress);
 
+            ServiceUtils.createParentDirectoryIfNecessary(dstfile);
             if (isDownloadParallel) {
                 downloadInParallel(ServiceUtils.getPartCount(req, s3));
                 download.setState(TransferState.Completed);
@@ -196,9 +197,7 @@ final class DownloadCallable implements Callable<File> {
      * Merges all the individual part Files into dstFile
      */
     private void combineFiles() throws Exception {
-        if (!ServiceUtils.createParentDirectoryIfNecessary(dstfile)) {
-            truncateDestinationFileIfNecessary();
-        }
+        truncateDestinationFileIfNecessary();
 
         for (Future<File> f : futureFiles) {
             File partFile = f.get();
